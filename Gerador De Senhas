@@ -1,0 +1,83 @@
+    def executar_sistema():
+        while True:
+            print("\n" + "=" * 60)
+            print("🔐  BEM-VINDO AO SISTEMA DE CRIPTOGRAFIA  🔐".center(60))
+            print("=" * 60)
+            print("Este sistema permite que você proteja ou revele mensagens usando".center(60))
+            print("criptografia segura com geração automática de chaves.".center(60))
+            print("-" * 60)
+            print("1️⃣  Criptografar uma nova mensagem".ljust(60))
+            print("2️⃣  Descriptografar uma mensagem existente".ljust(60))
+            print("3️⃣  Encerrar o programa".ljust(60))
+            print("-" * 60)
+
+            try:
+                dados_usuario = int(input("\n📘 Escolha o que deseja fazer:\n"
+                "1️⃣  Criptografar uma nova mensagem\n"
+                "2️⃣  Descriptografar uma mensagem existente\n"
+                "Digite o número da opção desejada: "))
+
+                if dados_usuario == 1:
+                    mensagem = input("\n💬 Digite a mensagem que deseja criptografar (texto ou senha): ")
+                    senha_acesso_user = int(input('\n🔐 Defina o tamanho da sua senha de acesso (mínimo recomendado: 8 caracteres): '))
+
+                    if senha_acesso_user <= 7:
+                        print('Insira um valor válido')
+                        return None
+
+                    chave_codificada, chave_acesso_codificada, senha_acesso_user = chave_codificada_funcao(mensagem, senha_acesso_user)
+
+                    with open(nome_arquivo, mode="a", newline="", encoding='utf-8') as arquivo_csv:
+                        escritor = csv.writer(arquivo_csv, delimiter=';')
+                        escritor.writerow([chave_codificada, chave_acesso_codificada, senha_acesso_user])
+
+                    #chave_acesso_codificada é a mensagem criptografada
+                    print(f'\n🔑 Chave gerada: {chave_codificada}')
+                    print(f"🧩 Mensagem criptografada: {chave_acesso_codificada}")
+                    print(f"🔒 Senha de acesso: {senha_acesso_user}")
+                    print("Guarde-a com segurança — ela será necessária para descriptografar sua mensagem!\n")
+
+                elif dados_usuario == 2:
+                    chave_codificada_entrada = input("\n🗝️  Digite a *chave de acesso* gerada durante a criptografia: ")
+                    mensagem_codificada_entrada = input("📩 Agora digite a *mensagem codificada* (aquela sequência longa que o sistema mostrou): ")
+                    senha_entrada = input("insira a senha: ")
+                    with open(nome_arquivo, mode="r", newline="", encoding='utf-8') as arquivo_csv:
+                        leitor = csv.reader(arquivo_csv, delimiter=';')
+                        encontrado = False
+                        for linha in leitor:
+                            # garantia de que a linha tem 3 colunas e sem espaços estranhos
+                            if len(linha) < 3:
+                                continue
+                            chave_salva = linha[0].strip()
+                            mensagem_salva = linha[1].strip()
+                            senha_salva = linha[2].strip()
+
+                            # Conferência correta: compara chave, mensagem e senha como strings
+                            if chave_salva == chave_codificada_entrada and mensagem_salva == mensagem_codificada_entrada and senha_salva == senha_entrada:
+                                try:
+                                    mensagem_decodificada_funcao(mensagem_salva, chave_salva, senha_entrada)
+                                    encontrado = True
+                                except Exception as e:
+                                    print(
+                                        "\n❌ Erro ao descriptografar. Verifique se a chave e a mensagem correspondem.")
+                                    # opcional: mostrar erro técnico para debug
+                                    # print("Detalhe do erro:", e)
+                                break
+
+                        if not encontrado:
+                            print(
+                                "\n❌ Chave, mensagem ou senha não conferem. Verifique suas informações e tente novamente.")
+
+                elif dados_usuario == 3:
+                    print('Programa encerrado')
+                    print('-' * 32)
+                    break
+
+                else:
+                    print("Programa sem respostas inesperado")
+
+            except ValueError:
+                print('Erro não identificado')
+
+    if __name__ == '__main__':
+        executar_sistema()
